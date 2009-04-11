@@ -17,6 +17,7 @@
 #include "env.h"
 #include "util.h"
 #include "rubysig.h"
+#include "mri_trace.h"
 
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
@@ -10351,15 +10352,31 @@ rb_thread_save_context(th)
     }
 }
 
+static void
+rb_thread_switch_end(n)
+    int n;
+{
+  if (MRI_THREAD_SWITCH_END_ENABLED()){
+    char *status = thread_status_name(curr_thread->status);
+    MRI_THREAD_SWITCH_END( status, n);
+  }
+}
+
 static int
 rb_thread_switch(n)
     int n;
 {
+    if (MRI_THREAD_SWITCH_START_ENABLED()){
+      char *status = thread_status_name(curr_thread->status);
+      MRI_THREAD_SWITCH_START( status, n);
+    }
     rb_trap_immediate = (curr_thread->flags&0x100)?1:0;
     switch (n) {
       case 0:
+    rb_thread_switch_end(n);
 	return 0;
       case RESTORE_FATAL:
+    rb_thread_switch_end(n);
 	JUMP_TAG(TAG_FATAL);
 	break;
       case RESTORE_INTERRUPT:
@@ -10371,23 +10388,28 @@ rb_thread_switch(n)
       case RESTORE_RAISE:
 	ruby_frame->last_func = 0;
 	ruby_current_node = th_raise_node;
+	rb_thread_switch_end(n);
 	rb_raise_jump(th_raise_exception);
 	break;
       case RESTORE_SIGNAL:
+	rb_thread_switch_end(n);
 	rb_thread_signal_raise(th_sig);
 	break;
       case RESTORE_EXIT:
 	ruby_errinfo = th_raise_exception;
 	ruby_current_node = th_raise_node;
 	if (!rb_obj_is_kind_of(ruby_errinfo, rb_eSystemExit)) {
+      rb_thread_switch_end(n);
 	    terminate_process(EXIT_FAILURE, ruby_errinfo);
 	}
+	rb_thread_switch_end(n);
 	rb_exc_raise(th_raise_exception);
 	break;
       case RESTORE_NORMAL:
       default:
 	break;
     }
+    rb_thread_switch_end(n);
     return 1;
 }
 
