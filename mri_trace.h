@@ -63,6 +63,38 @@ extern "C" {
 } 
 #define	MRI_CLEAR_CACHE_START_ENABLED() \
 	__dtrace_isenabled$mri$clear_cache_start$v1()
+#define	MRI_MARSHAL_DUMP_END() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$marshal_dump_end$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_MARSHAL_DUMP_END_ENABLED() \
+	__dtrace_isenabled$mri$marshal_dump_end$v1()
+#define	MRI_MARSHAL_DUMP_START() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$marshal_dump_start$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_MARSHAL_DUMP_START_ENABLED() \
+	__dtrace_isenabled$mri$marshal_dump_start$v1()
+#define	MRI_MARSHAL_LOAD_END() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$marshal_load_end$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_MARSHAL_LOAD_END_ENABLED() \
+	__dtrace_isenabled$mri$marshal_load_end$v1()
+#define	MRI_MARSHAL_LOAD_START() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$marshal_load_start$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_MARSHAL_LOAD_START_ENABLED() \
+	__dtrace_isenabled$mri$marshal_load_start$v1()
 #define	MRI_THREAD_SWITCH_END(arg0, arg1) \
 { \
 	__asm__ volatile(".reference " MRI_TYPEDEFS); \
@@ -93,6 +125,14 @@ extern void __dtrace_probe$mri$clear_cache_end$v1(void);
 extern int __dtrace_isenabled$mri$clear_cache_end$v1(void);
 extern void __dtrace_probe$mri$clear_cache_start$v1(void);
 extern int __dtrace_isenabled$mri$clear_cache_start$v1(void);
+extern void __dtrace_probe$mri$marshal_dump_end$v1(void);
+extern int __dtrace_isenabled$mri$marshal_dump_end$v1(void);
+extern void __dtrace_probe$mri$marshal_dump_start$v1(void);
+extern int __dtrace_isenabled$mri$marshal_dump_start$v1(void);
+extern void __dtrace_probe$mri$marshal_load_end$v1(void);
+extern int __dtrace_isenabled$mri$marshal_load_end$v1(void);
+extern void __dtrace_probe$mri$marshal_load_start$v1(void);
+extern int __dtrace_isenabled$mri$marshal_load_start$v1(void);
 extern void __dtrace_probe$mri$thread_switch_end$v1$63686172202a$696e74(char *, int);
 extern int __dtrace_isenabled$mri$thread_switch_end$v1(void);
 extern void __dtrace_probe$mri$thread_switch_start$v1$63686172202a$696e74(char *, int);

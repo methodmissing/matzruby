@@ -14,6 +14,7 @@
 #include "rubyio.h"
 #include "st.h"
 #include "util.h"
+#include "mri_trace.h"
 
 #include <math.h>
 #ifdef HAVE_FLOAT_H
@@ -758,6 +759,8 @@ marshal_dump(argc, argv)
     int argc;
     VALUE* argv;
 {
+    if( MRI_MARSHAL_DUMP_START_ENABLED() )
+      MRI_MARSHAL_DUMP_START();
     VALUE obj, port, a1, a2;
     int limit = -1;
     struct dump_arg arg;
@@ -785,6 +788,8 @@ marshal_dump(argc, argv)
     if (!NIL_P(port)) {
 	if (!rb_respond_to(port, s_write)) {
 	  type_error:
+	    if( MRI_MARSHAL_DUMP_END_ENABLED() )
+	      MRI_MARSHAL_DUMP_END();
 	    rb_raise(rb_eTypeError, "instance of IO needed");
 	}
 	arg.dest = port;
@@ -806,7 +811,8 @@ marshal_dump(argc, argv)
 
     rb_ensure(dump, (VALUE)&c_arg, dump_ensure, (VALUE)&arg);
     RBASIC(arg.str)->klass = rb_cString;
-
+	if( MRI_MARSHAL_DUMP_END_ENABLED() )
+      MRI_MARSHAL_DUMP_END();
     return port;
 }
 
@@ -1453,6 +1459,8 @@ marshal_load(argc, argv)
     int argc;
     VALUE *argv;
 {
+    if( MRI_MARSHAL_LOAD_START_ENABLED() )
+      MRI_MARSHAL_LOAD_START();
     VALUE port, proc;
     int major, minor;
     VALUE v;
@@ -1471,6 +1479,8 @@ marshal_load(argc, argv)
 	arg.taint = Qtrue;
     }
     else {
+    if( MRI_MARSHAL_LOAD_END_ENABLED() )
+      MRI_MARSHAL_LOAD_END();
 	rb_raise(rb_eTypeError, "instance of IO needed");
     }
     arg.src = port;
@@ -1483,6 +1493,8 @@ marshal_load(argc, argv)
     major = r_byte(&arg);
     minor = r_byte(&arg);
     if (major != MARSHAL_MAJOR || minor > MARSHAL_MINOR) {
+    if( MRI_MARSHAL_LOAD_END_ENABLED() )
+      MRI_MARSHAL_LOAD_END();
 	rb_raise(rb_eTypeError, "incompatible marshal file format (can't be read)\n\
 \tformat version %d.%d required; %d.%d given",
 		 MARSHAL_MAJOR, MARSHAL_MINOR, major, minor);
@@ -1495,7 +1507,8 @@ marshal_load(argc, argv)
 
     if (!NIL_P(proc)) arg.proc = proc;
     v = rb_ensure(load, (VALUE)&arg, load_ensure, (VALUE)&arg);
-
+    if( MRI_MARSHAL_LOAD_END_ENABLED() )
+      MRI_MARSHAL_LOAD_END();
     return v;
 }
 

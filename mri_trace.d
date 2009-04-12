@@ -12,4 +12,10 @@ provider mri {
   probe clear_cache_by_id_start( int );
   probe clear_cache_by_id_end( int );
 
+  probe marshal_dump_start();
+  probe marshal_dump_end();  
+
+  probe marshal_load_start();
+  probe marshal_load_end();
+
 };
