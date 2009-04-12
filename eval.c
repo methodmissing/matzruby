@@ -7259,6 +7259,9 @@ rb_require_safe(fname, safe)
     VALUE fname;
     int safe;
 {
+   char * file_name = fname;
+   if( MRI_REQUIRE_START_ENABLED() )
+     MRI_REQUIRE_START( file_name, safe );
     VALUE result = Qnil;
     volatile VALUE errinfo = ruby_errinfo;
     int state;
@@ -7319,12 +7322,19 @@ rb_require_safe(fname, safe)
     SCOPE_SET(saved.vmode);
     ruby_safe_level = saved.safe;
     load_unlock(ftptr);
-    if (state) JUMP_TAG(state);
+    if (state){ 
+      if( MRI_REQUIRE_START_ENABLED() )
+        MRI_REQUIRE_START( file_name, safe );
+      JUMP_TAG(state);
+    }
     if (NIL_P(result)) {
-	load_failed(fname);
+      if( MRI_REQUIRE_END_ENABLED() )
+        MRI_REQUIRE_END( file_name, safe );
+	  load_failed(fname);
     }
     ruby_errinfo = errinfo;
-
+    if( MRI_REQUIRE_END_ENABLED() )
+      MRI_REQUIRE_END( file_name, safe );
     return result;
 }
 

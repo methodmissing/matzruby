@@ -18,4 +18,7 @@ provider mri {
   probe marshal_load_start();
   probe marshal_load_end();
 
+  probe require_start( char*, int );
+  probe require_end( char*, int );
+
 };
