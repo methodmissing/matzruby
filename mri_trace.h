@@ -15,6 +15,54 @@ extern "C" {
 
 #define MRI_TYPEDEFS "___dtrace_typedefs$mri$v1"
 
+#define	MRI_CLEAR_CACHE_BY_CLASS_END(arg0) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$clear_cache_by_class_end$v1$63686172202a(arg0); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_CLEAR_CACHE_BY_CLASS_END_ENABLED() \
+	__dtrace_isenabled$mri$clear_cache_by_class_end$v1()
+#define	MRI_CLEAR_CACHE_BY_CLASS_START(arg0) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$clear_cache_by_class_start$v1$63686172202a(arg0); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_CLEAR_CACHE_BY_CLASS_START_ENABLED() \
+	__dtrace_isenabled$mri$clear_cache_by_class_start$v1()
+#define	MRI_CLEAR_CACHE_BY_ID_END(arg0) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$clear_cache_by_id_end$v1$696e74(arg0); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_CLEAR_CACHE_BY_ID_END_ENABLED() \
+	__dtrace_isenabled$mri$clear_cache_by_id_end$v1()
+#define	MRI_CLEAR_CACHE_BY_ID_START(arg0) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$clear_cache_by_id_start$v1$696e74(arg0); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_CLEAR_CACHE_BY_ID_START_ENABLED() \
+	__dtrace_isenabled$mri$clear_cache_by_id_start$v1()
+#define	MRI_CLEAR_CACHE_END() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$clear_cache_end$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_CLEAR_CACHE_END_ENABLED() \
+	__dtrace_isenabled$mri$clear_cache_end$v1()
+#define	MRI_CLEAR_CACHE_START() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$clear_cache_start$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_CLEAR_CACHE_START_ENABLED() \
+	__dtrace_isenabled$mri$clear_cache_start$v1()
 #define	MRI_THREAD_SWITCH_END(arg0, arg1) \
 { \
 	__asm__ volatile(".reference " MRI_TYPEDEFS); \
@@ -33,6 +81,18 @@ extern "C" {
 	__dtrace_isenabled$mri$thread_switch_start$v1()
 
 
+extern void __dtrace_probe$mri$clear_cache_by_class_end$v1$63686172202a(char *);
+extern int __dtrace_isenabled$mri$clear_cache_by_class_end$v1(void);
+extern void __dtrace_probe$mri$clear_cache_by_class_start$v1$63686172202a(char *);
+extern int __dtrace_isenabled$mri$clear_cache_by_class_start$v1(void);
+extern void __dtrace_probe$mri$clear_cache_by_id_end$v1$696e74(int);
+extern int __dtrace_isenabled$mri$clear_cache_by_id_end$v1(void);
+extern void __dtrace_probe$mri$clear_cache_by_id_start$v1$696e74(int);
+extern int __dtrace_isenabled$mri$clear_cache_by_id_start$v1(void);
+extern void __dtrace_probe$mri$clear_cache_end$v1(void);
+extern int __dtrace_isenabled$mri$clear_cache_end$v1(void);
+extern void __dtrace_probe$mri$clear_cache_start$v1(void);
+extern int __dtrace_isenabled$mri$clear_cache_start$v1(void);
 extern void __dtrace_probe$mri$thread_switch_end$v1$63686172202a$696e74(char *, int);
 extern int __dtrace_isenabled$mri$thread_switch_end$v1(void);
 extern void __dtrace_probe$mri$thread_switch_start$v1$63686172202a$696e74(char *, int);

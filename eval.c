@@ -344,13 +344,16 @@ void
 rb_clear_cache()
 {
    struct cache_entry *ent, *end;
-
+    if( MRI_CLEAR_CACHE_START_ENABLED() )
+      MRI_CLEAR_CACHE_START();
     if (!ruby_running) return;
     ent = cache; end = ent + CACHE_SIZE;
     while (ent < end) {
 	ent->mid = 0;
 	ent++;
     }
+    if( MRI_CLEAR_CACHE_END_ENABLED() )
+      MRI_CLEAR_CACHE_END();
 }
 
 static void
@@ -376,7 +379,8 @@ rb_clear_cache_by_id(id)
     ID id;
 {
     struct cache_entry *ent, *end;
-
+    if( MRI_CLEAR_CACHE_BY_ID_START_ENABLED() )
+      MRI_CLEAR_CACHE_BY_ID_START(id);
     if (!ruby_running) return;
     ent = cache; end = ent + CACHE_SIZE;
     while (ent < end) {
@@ -385,6 +389,8 @@ rb_clear_cache_by_id(id)
 	}
 	ent++;
     }
+    if( MRI_CLEAR_CACHE_BY_ID_END_ENABLED() )
+      MRI_CLEAR_CACHE_BY_ID_END(id);
 }
 
 void
@@ -392,7 +398,8 @@ rb_clear_cache_by_class(klass)
     VALUE klass;
 {
     struct cache_entry *ent, *end;
-
+    if( MRI_CLEAR_CACHE_BY_CLASS_START_ENABLED() )
+      MRI_CLEAR_CACHE_BY_CLASS_START( rb_class2name(klass) );
     if (!ruby_running) return;
     ent = cache; end = ent + CACHE_SIZE;
     while (ent < end) {
@@ -401,6 +408,8 @@ rb_clear_cache_by_class(klass)
 	}
 	ent++;
     }
+    if( MRI_CLEAR_CACHE_BY_CLASS_END_ENABLED() )
+      MRI_CLEAR_CACHE_BY_CLASS_END( rb_class2name(klass) );
 }
 
 static ID init, eqq, each, aref, aset, match, missing;
@@ -1702,12 +1711,11 @@ rb_eval_string(str)
 {
     VALUE v;
     NODE *oldsrc = ruby_current_node;
-
+    
     ruby_current_node = 0;
     ruby_sourcefile = rb_source_filename("(eval)");
     v = eval(ruby_top_self, rb_str_new2(str), Qnil, 0, 0);
     ruby_current_node = oldsrc;
-
     return v;
 }
 
