@@ -63,6 +63,38 @@ extern "C" {
 } 
 #define	MRI_CLEAR_CACHE_START_ENABLED() \
 	__dtrace_isenabled$mri$clear_cache_start$v1()
+#define	MRI_COMPILE_END(arg0, arg1) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$compile_end$v1$63686172202a$696e74(arg0, arg1); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_COMPILE_END_ENABLED() \
+	__dtrace_isenabled$mri$compile_end$v1()
+#define	MRI_COMPILE_START(arg0, arg1) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$compile_start$v1$63686172202a$696e74(arg0, arg1); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_COMPILE_START_ENABLED() \
+	__dtrace_isenabled$mri$compile_start$v1()
+#define	MRI_LEX_END() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$lex_end$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_LEX_END_ENABLED() \
+	__dtrace_isenabled$mri$lex_end$v1()
+#define	MRI_LEX_START() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$lex_start$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_LEX_START_ENABLED() \
+	__dtrace_isenabled$mri$lex_start$v1()
 #define	MRI_MARSHAL_DUMP_END() \
 { \
 	__asm__ volatile(".reference " MRI_TYPEDEFS); \
@@ -141,6 +173,14 @@ extern void __dtrace_probe$mri$clear_cache_end$v1(void);
 extern int __dtrace_isenabled$mri$clear_cache_end$v1(void);
 extern void __dtrace_probe$mri$clear_cache_start$v1(void);
 extern int __dtrace_isenabled$mri$clear_cache_start$v1(void);
+extern void __dtrace_probe$mri$compile_end$v1$63686172202a$696e74(char *, int);
+extern int __dtrace_isenabled$mri$compile_end$v1(void);
+extern void __dtrace_probe$mri$compile_start$v1$63686172202a$696e74(char *, int);
+extern int __dtrace_isenabled$mri$compile_start$v1(void);
+extern void __dtrace_probe$mri$lex_end$v1(void);
+extern int __dtrace_isenabled$mri$lex_end$v1(void);
+extern void __dtrace_probe$mri$lex_start$v1(void);
+extern int __dtrace_isenabled$mri$lex_start$v1(void);
 extern void __dtrace_probe$mri$marshal_dump_end$v1(void);
 extern int __dtrace_isenabled$mri$marshal_dump_end$v1(void);
 extern void __dtrace_probe$mri$marshal_dump_start$v1(void);

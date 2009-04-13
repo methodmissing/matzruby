@@ -23,6 +23,7 @@
 #include "intern.h"
 #include "node.h"
 #include "st.h"
+#include "mri_trace.h"
 #include <stdio.h>
 #include <errno.h>
 #include <ctype.h>
@@ -2589,6 +2590,8 @@ yycompile(f, line)
     char *f;
     int line;
 {
+    if (MRI_COMPILE_START_ENABLED())
+      MRI_COMPILE_START( f, line);
     int n;
     NODE *node = 0;
     struct RVarmap *vp, *vars = ruby_dyna_vars;
@@ -2644,6 +2647,9 @@ yycompile(f, line)
     }
     if (n == 0) node = ruby_eval_tree;
     if (ruby_nerrs) ruby_eval_tree_begin = 0;
+    if (MRI_COMPILE_END_ENABLED()){
+      MRI_COMPILE_END( f, line);
+    }
     return node;
 }
 
@@ -3373,6 +3379,9 @@ arg_ambiguous()
 static int
 yylex()
 {
+    if (MRI_LEX_START_ENABLED()){
+      MRI_LEX_START();
+    }
     register int c;
     int space_seen = 0;
     int cmd_state;
@@ -3395,6 +3404,8 @@ yylex()
 		lex_state = EXPR_END;
 	    }
 	}
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return token;
     }
     cmd_state = command_start;
@@ -3405,7 +3416,9 @@ yylex()
       case '\004':		/* ^D */
       case '\032':		/* ^Z */
       case -1:			/* end of script. */
-	return 0;
+      if (MRI_LEX_END_ENABLED())
+	    MRI_LEX_END();
+	  return 0;
 
 	/* white spaces */
       case ' ': case '\t': case '\f': case '\r':
@@ -3415,8 +3428,11 @@ yylex()
 
       case '#':		/* it's a comment */
 	while ((c = nextc()) != '\n') {
-	    if (c == -1)
-		return 0;
+	    if (c == -1){
+	      if (MRI_LEX_END_ENABLED())
+		    MRI_LEX_END();
+	  	  return 0;
+	    }
 	}
 	/* fall through */
       case '\n':
@@ -3431,6 +3447,8 @@ yylex()
 	}
 	command_start = Qtrue;
 	lex_state = EXPR_BEG;
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return '\n';
 
       case '*':
@@ -3438,6 +3456,8 @@ yylex()
 	    if ((c = nextc()) == '=') {
 		yylval.id = tPOW;
 		lex_state = EXPR_BEG;
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tOP_ASGN;
 	    }
 	    pushback(c);
@@ -3447,6 +3467,8 @@ yylex()
 	    if (c == '=') {
 		yylval.id = '*';
 		lex_state = EXPR_BEG;
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tOP_ASGN;
 	    }
 	    pushback(c);
@@ -3467,17 +3489,25 @@ yylex()
 	  default:
 	    lex_state = EXPR_BEG; break;
 	}
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return c;
 
       case '!':
 	lex_state = EXPR_BEG;
 	if ((c = nextc()) == '=') {
+	  if (MRI_LEX_END_ENABLED())
+	    MRI_LEX_END();
 	    return tNEQ;
 	}
 	if (c == '~') {
+	  if (MRI_LEX_END_ENABLED())
+	    MRI_LEX_END();
 	    return tNMATCH;
 	}
 	pushback(c);
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return '!';
 
       case '=':
@@ -3489,6 +3519,8 @@ yylex()
 		    c = nextc();
 		    if (c == -1) {
 			rb_compile_error("embedded document meets end of file");
+			if (MRI_LEX_END_ENABLED())
+		      MRI_LEX_END();
 			return 0;
 		    }
 		    if (c != '=') continue;
@@ -3510,18 +3542,28 @@ yylex()
 	}
 	if ((c = nextc()) == '=') {
 	    if ((c = nextc()) == '=') {
+	    if (MRI_LEX_END_ENABLED())
+	      MRI_LEX_END();
 		return tEQQ;
 	    }
 	    pushback(c);
+	    if (MRI_LEX_END_ENABLED())
+	      MRI_LEX_END();
 	    return tEQ;
 	}
 	if (c == '~') {
+	    if (MRI_LEX_END_ENABLED())
+	      MRI_LEX_END();
 	    return tMATCH;
 	}
 	else if (c == '>') {
+	    if (MRI_LEX_END_ENABLED())
+	      MRI_LEX_END();
 	    return tASSOC;
 	}
 	pushback(c);
+	if (MRI_LEX_END_ENABLED())
+      MRI_LEX_END();
 	return '=';
 
       case '<':
@@ -3533,7 +3575,11 @@ yylex()
 	    lex_state != EXPR_CLASS &&
 	    (!IS_ARG() || space_seen)) {
 	    int token = heredoc_identifier();
-	    if (token) return token;
+	    if (token){
+	      if (MRI_LEX_END_ENABLED())
+		    MRI_LEX_END(); 
+	      return token;
+	    }
 	}
 	switch (lex_state) {
 	  case EXPR_FNAME: case EXPR_DOT:
@@ -3543,21 +3589,31 @@ yylex()
 	}
 	if (c == '=') {
 	    if ((c = nextc()) == '>') {
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tCMP;
 	    }
 	    pushback(c);
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return tLEQ;
 	}
 	if (c == '<') {
 	    if ((c = nextc()) == '=') {
 		yylval.id = tLSHFT;
 		lex_state = EXPR_BEG;
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tOP_ASGN;
 	    }
 	    pushback(c);
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return tLSHFT;
 	}
 	pushback(c);
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END(); 
 	return '<';
 
       case '>':
@@ -3568,27 +3624,39 @@ yylex()
 	    lex_state = EXPR_BEG; break;
 	}
 	if ((c = nextc()) == '=') {
-	    return tGEQ;
+	  if (MRI_LEX_END_ENABLED())
+	    MRI_LEX_END(); 
+	  return tGEQ;
 	}
 	if (c == '>') {
 	    if ((c = nextc()) == '=') {
 		yylval.id = tRSHFT;
 		lex_state = EXPR_BEG;
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tOP_ASGN;
 	    }
 	    pushback(c);
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return tRSHFT;
 	}
 	pushback(c);
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return '>';
 
       case '"':
 	lex_strterm = NEW_STRTERM(str_dquote, '"', 0);
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return tSTRING_BEG;
 
       case '`':
 	if (lex_state == EXPR_FNAME) {
 	    lex_state = EXPR_END;
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return c;
 	}
 	if (lex_state == EXPR_DOT) {
@@ -3596,23 +3664,33 @@ yylex()
 		lex_state = EXPR_CMDARG;
 	    else
 		lex_state = EXPR_ARG;
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return c;
 	}
 	lex_strterm = NEW_STRTERM(str_xquote, '`', 0);
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return tXSTRING_BEG;
 
       case '\'':
 	lex_strterm = NEW_STRTERM(str_squote, '\'', 0);
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return tSTRING_BEG;
 
       case '?':
 	if (lex_state == EXPR_END || lex_state == EXPR_ENDARG) {
 	    lex_state = EXPR_BEG;
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return '?';
 	}
 	c = nextc();
 	if (c == -1) {
 	    rb_compile_error("incomplete character syntax");
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return 0;
 	}
 	if (ISSPACE(c)){
@@ -3645,6 +3723,8 @@ yylex()
 	  ternary:
 	    pushback(c);
 	    lex_state = EXPR_BEG;
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return '?';
 	}
 	else if (ismbchar(c)) {
@@ -3660,6 +3740,8 @@ yylex()
 	c &= 0xff;
 	lex_state = EXPR_END;
 	yylval.node = NEW_LIT(INT2FIX(c));
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return tINTEGER;
 
       case '&':
@@ -3668,14 +3750,20 @@ yylex()
 	    if ((c = nextc()) == '=') {
 		yylval.id = tANDOP;
 		lex_state = EXPR_BEG;
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tOP_ASGN;
 	    }
 	    pushback(c);
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return tANDOP;
 	}
 	else if (c == '=') {
 	    yylval.id = '&';
 	    lex_state = EXPR_BEG;
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return tOP_ASGN;
 	}
 	pushback(c);
@@ -3695,6 +3783,8 @@ yylex()
 	  default:
 	    lex_state = EXPR_BEG;
 	}
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return c;
 
       case '|':
@@ -3703,14 +3793,20 @@ yylex()
 	    if ((c = nextc()) == '=') {
 		yylval.id = tOROP;
 		lex_state = EXPR_BEG;
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tOP_ASGN;
 	    }
 	    pushback(c);
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return tOROP;
 	}
 	if (c == '=') {
 	    yylval.id = '|';
 	    lex_state = EXPR_BEG;
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return tOP_ASGN;
 	}
 	if (lex_state == EXPR_FNAME || lex_state == EXPR_DOT) {
@@ -3720,6 +3816,8 @@ yylex()
 	    lex_state = EXPR_BEG;
 	}
 	pushback(c);
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return '|';
 
       case '+':
@@ -3727,14 +3825,20 @@ yylex()
 	if (lex_state == EXPR_FNAME || lex_state == EXPR_DOT) {
 	    lex_state = EXPR_ARG;
 	    if (c == '@') {
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tUPLUS;
 	    }
 	    pushback(c);
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return '+';
 	}
 	if (c == '=') {
 	    yylval.id = '+';
 	    lex_state = EXPR_BEG;
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return tOP_ASGN;
 	}
 	if (IS_BEG() ||
@@ -3746,10 +3850,14 @@ yylex()
 		c = '+';
 		goto start_num;
 	    }
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return tUPLUS;
 	}
 	lex_state = EXPR_BEG;
 	pushback(c);
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return '+';
 
       case '-':
@@ -3757,14 +3865,20 @@ yylex()
 	if (lex_state == EXPR_FNAME || lex_state == EXPR_DOT) {
 	    lex_state = EXPR_ARG;
 	    if (c == '@') {
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tUMINUS;
 	    }
 	    pushback(c);
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return '-';
 	}
 	if (c == '=') {
 	    yylval.id = '-';
 	    lex_state = EXPR_BEG;
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return tOP_ASGN;
 	}
 	if (IS_BEG() ||
@@ -3773,21 +3887,31 @@ yylex()
 	    lex_state = EXPR_BEG;
 	    pushback(c);
 	    if (ISDIGIT(c)) {
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tUMINUS_NUM;
 	    }
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END(); 
 	    return tUMINUS;
 	}
 	lex_state = EXPR_BEG;
 	pushback(c);
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return '-';
 
       case '.':
 	lex_state = EXPR_BEG;
 	if ((c = nextc()) == '.') {
 	    if ((c = nextc()) == '.') {
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tDOT3;
 	    }
 	    pushback(c);
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return tDOT2;
 	}
 	pushback(c);
@@ -3795,6 +3919,8 @@ yylex()
 	    yyerror("no .<digit> floating literal anymore; put 0 before dot");
 	}
 	lex_state = EXPR_DOT;
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return '.';
 
       start_num:
@@ -3835,6 +3961,8 @@ yylex()
 		    }
 		    else if (nondigit) goto trailing_uc;
 		    yylval.node = NEW_LIT(rb_cstr_to_inum(tok(), 16, Qfalse));
+		    if (MRI_LEX_END_ENABLED())
+			  MRI_LEX_END();
 		    return tINTEGER;
 		}
 		if (c == 'b' || c == 'B') {
@@ -3859,6 +3987,8 @@ yylex()
 		    }
 		    else if (nondigit) goto trailing_uc;
 		    yylval.node = NEW_LIT(rb_cstr_to_inum(tok(), 2, Qfalse));
+		    if (MRI_LEX_END_ENABLED())
+			  MRI_LEX_END();
 		    return tINTEGER;
 		}
 		if (c == 'd' || c == 'D') {
@@ -3883,6 +4013,8 @@ yylex()
 		    }
 		    else if (nondigit) goto trailing_uc;
 		    yylval.node = NEW_LIT(rb_cstr_to_inum(tok(), 10, Qfalse));
+		    if (MRI_LEX_END_ENABLED())
+			  MRI_LEX_END();
 		    return tINTEGER;
 		}
 		if (c == '_') {
@@ -3915,6 +4047,8 @@ yylex()
 			tokfix();
 			if (nondigit) goto trailing_uc;
 			yylval.node = NEW_LIT(rb_cstr_to_inum(tok(), 8, Qfalse));
+			if (MRI_LEX_END_ENABLED())
+			  MRI_LEX_END();
 			return tINTEGER;
 		    }
 		    if (nondigit) {
@@ -3932,6 +4066,8 @@ yylex()
 		else {
 		    pushback(c);
 		    yylval.node = NEW_LIT(INT2FIX(0));
+		    if (MRI_LEX_END_ENABLED())
+			  MRI_LEX_END();
 		    return tINTEGER;
 		}
 	    }
@@ -4011,9 +4147,13 @@ yylex()
 		    errno = 0;
 		}
 		yylval.node = NEW_LIT(rb_float_new(d));
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tFLOAT;
 	    }
 	    yylval.node = NEW_LIT(rb_cstr_to_inum(tok(), 10, Qfalse));
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return tINTEGER;
 	}
 
@@ -4023,6 +4163,8 @@ yylex()
 	COND_LEXPOP();
 	CMDARG_LEXPOP();
 	lex_state = EXPR_END;
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return c;
 
       case ':':
@@ -4030,14 +4172,20 @@ yylex()
 	if (c == ':') {
 	    if (IS_BEG() || (IS_ARG() && space_seen)) {
 		lex_state = EXPR_BEG;
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tCOLON3;
 	    }
 	    lex_state = EXPR_DOT;
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return tCOLON2;
 	}
 	if (lex_state == EXPR_END || lex_state == EXPR_ENDARG || ISSPACE(c)) {
 	    pushback(c);
 	    lex_state = EXPR_BEG;
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return ':';
 	}
 	switch (c) {
@@ -4052,16 +4200,22 @@ yylex()
 	    break;
 	}
 	lex_state = EXPR_FNAME;
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return tSYMBEG;
 
       case '/':
 	if (IS_BEG()) {
 	    lex_strterm = NEW_STRTERM(str_regexp, '/', 0);
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return tREGEXP_BEG;
 	}
 	if ((c = nextc()) == '=') {
 	    yylval.id = '/';
 	    lex_state = EXPR_BEG;
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return tOP_ASGN;
 	}
 	pushback(c);
@@ -4069,6 +4223,8 @@ yylex()
 	    if (!ISSPACE(c)) {
 		arg_ambiguous();
 		lex_strterm = NEW_STRTERM(str_regexp, '/', 0);
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tREGEXP_BEG;
 	    }
 	}
@@ -4078,12 +4234,16 @@ yylex()
 	  default:
 	    lex_state = EXPR_BEG; break;
 	}
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return '/';
 
       case '^':
 	if ((c = nextc()) == '=') {
 	    yylval.id = '^';
 	    lex_state = EXPR_BEG;
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return tOP_ASGN;
 	}
 	switch (lex_state) {
@@ -4093,12 +4253,16 @@ yylex()
 	    lex_state = EXPR_BEG; break;
 	}
 	pushback(c);
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return '^';
 
       case ';':
 	command_start = Qtrue;
       case ',':
 	lex_state = EXPR_BEG;
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return c;
 
       case '~':
@@ -4113,6 +4277,8 @@ yylex()
 	  default:
 	    lex_state = EXPR_BEG; break;
 	}
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return '~';
 
       case '(':
@@ -4132,6 +4298,8 @@ yylex()
 	COND_PUSH(0);
 	CMDARG_PUSH(0);
 	lex_state = EXPR_BEG;
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return c;
 
       case '[':
@@ -4139,12 +4307,18 @@ yylex()
 	    lex_state = EXPR_ARG;
 	    if ((c = nextc()) == ']') {
 		if ((c = nextc()) == '=') {
+		    if (MRI_LEX_END_ENABLED())
+			  MRI_LEX_END();
 		    return tASET;
 		}
 		pushback(c);
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tAREF;
 	    }
 	    pushback(c);
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return '[';
 	}
 	else if (IS_BEG()) {
@@ -4156,6 +4330,8 @@ yylex()
 	lex_state = EXPR_BEG;
 	COND_PUSH(0);
 	CMDARG_PUSH(0);
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return c;
 
       case '{':
@@ -4168,6 +4344,8 @@ yylex()
 	COND_PUSH(0);
 	CMDARG_PUSH(0);
 	lex_state = EXPR_BEG;
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return c;
 
       case '\\':
@@ -4177,6 +4355,8 @@ yylex()
 	    goto retry; /* skip \\n */
 	}
 	pushback(c);
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return '\\';
 
       case '%':
@@ -4194,11 +4374,15 @@ yylex()
 		term = nextc();
 		if (ISALNUM(term) || ismbchar(term)) {
 		    yyerror("unknown type of %string");
+		    if (MRI_LEX_END_ENABLED())
+			  MRI_LEX_END();
 		    return 0;
 		}
 	    }
 	    if (c == -1 || term == -1) {
 		rb_compile_error("unterminated quoted string meets end of file");
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return 0;
 	    }
 	    paren = term;
@@ -4211,45 +4395,63 @@ yylex()
 	    switch (c) {
 	      case 'Q':
 		lex_strterm = NEW_STRTERM(str_dquote, term, paren);
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tSTRING_BEG;
 
 	      case 'q':
 		lex_strterm = NEW_STRTERM(str_squote, term, paren);
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tSTRING_BEG;
 
 	      case 'W':
 		lex_strterm = NEW_STRTERM(str_dword, term, paren);
 		do {c = nextc();} while (ISSPACE(c));
 		pushback(c);
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tWORDS_BEG;
 
 	      case 'w':
 		lex_strterm = NEW_STRTERM(str_sword, term, paren);
 		do {c = nextc();} while (ISSPACE(c));
 		pushback(c);
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tQWORDS_BEG;
 
 	      case 'x':
 		lex_strterm = NEW_STRTERM(str_xquote, term, paren);
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tXSTRING_BEG;
 
 	      case 'r':
 		lex_strterm = NEW_STRTERM(str_regexp, term, paren);
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tREGEXP_BEG;
 
 	      case 's':
 		lex_strterm = NEW_STRTERM(str_ssym, term, paren);
 		lex_state = EXPR_FNAME;
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return tSYMBEG;
 
 	      default:
 		yyerror("unknown type of %string");
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return 0;
 	    }
 	}
 	if ((c = nextc()) == '=') {
 	    yylval.id = '%';
 	    lex_state = EXPR_BEG;
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return tOP_ASGN;
 	}
 	if (IS_ARG() && space_seen && !ISSPACE(c)) {
@@ -4262,6 +4464,8 @@ yylex()
 	    lex_state = EXPR_BEG; break;
 	}
 	pushback(c);
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return '%';
 
       case '$':
@@ -4302,6 +4506,8 @@ yylex()
 	    tokadd(c);
 	    tokfix();
 	    yylval.id = rb_intern(tok());
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return tGVAR;
 
 	  case '-':
@@ -4318,6 +4524,8 @@ yylex()
 	    tokfix();
 	    yylval.id = rb_intern(tok());
 	    /* xxx shouldn't check if valid option variable */
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return tGVAR;
 
 	  case '&':		/* $&: last match */
@@ -4330,6 +4538,8 @@ yylex()
 		goto gvar;
 	    }
 	    yylval.node = NEW_BACK_REF(c);
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return tBACK_REF;
 
 	  case '1': case '2': case '3':
@@ -4344,11 +4554,15 @@ yylex()
 	    if (last_state == EXPR_FNAME) goto gvar;
 	    tokfix();
 	    yylval.node = NEW_NTH_REF(atoi(tok()+1));
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END(); 
 	    return tNTH_REF;
 
 	  default:
 	    if (!is_identchar(c)) {
 		pushback(c);
+		if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 		return '$';
 	    }
 	  case '0':
@@ -4371,10 +4585,14 @@ yylex()
 	    else {
 		rb_compile_error("`@@%c' is not allowed as a class variable name", c);
 	    }
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return 0;
 	}
 	if (!is_identchar(c)) {
 	    pushback(c);
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return '@';
 	}
 	break;
@@ -4383,6 +4601,8 @@ yylex()
 	if (was_bol() && whole_match_p("__END__", 7, 0)) {
 	    ruby__end__seen = 1;
 	    lex_lastline = 0;
+	    if (MRI_LEX_END_ENABLED())
+		  MRI_LEX_END();
 	    return -1;
 	}
 	newtok();
@@ -4469,21 +4689,40 @@ yylex()
 		    lex_state = kw->state;
 		    if (state == EXPR_FNAME) {
 			yylval.id = rb_intern(kw->name);
+			if (MRI_LEX_END_ENABLED())
+			  MRI_LEX_END();
 			return kw->id[0];
 		    }
 		    if (kw->id[0] == kDO) {
-			if (COND_P()) return kDO_COND;
-			if (CMDARG_P() && state != EXPR_CMDARG)
+			if (COND_P()) {
+			  if (MRI_LEX_END_ENABLED())
+			    MRI_LEX_END();
+			  return kDO_COND;
+			}
+			if (CMDARG_P() && state != EXPR_CMDARG){
+			    if (MRI_LEX_END_ENABLED())
+				  MRI_LEX_END();
 			    return kDO_BLOCK;
-			if (state == EXPR_ENDARG)
-			    return kDO_BLOCK;
+			}
+			if (state == EXPR_ENDARG){
+			   if (MRI_LEX_END_ENABLED())
+			     MRI_LEX_END(); 
+			   return kDO_BLOCK;
+			}
+			if (MRI_LEX_END_ENABLED())
+			  MRI_LEX_END();
 			return kDO;
 		    }
-		    if (state == EXPR_BEG)
-			return kw->id[0];
+		    if (state == EXPR_BEG){
+			  if (MRI_LEX_END_ENABLED())
+			     MRI_LEX_END();
+			  return kw->id[0];
+			}
 		    else {
 			if (kw->id[0] != kw->id[1])
 			    lex_state = EXPR_BEG;
+		    if (MRI_LEX_END_ENABLED())
+			  MRI_LEX_END();
 			return kw->id[1];
 		    }
 		}
@@ -4512,6 +4751,8 @@ yylex()
 	    ((dyna_in_block() && rb_dvar_defined(yylval.id)) || local_id(yylval.id))) {
 	    lex_state = EXPR_END;
 	}
+	if (MRI_LEX_END_ENABLED())
+	  MRI_LEX_END();
 	return result;
     }
 }

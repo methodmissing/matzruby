@@ -21,4 +21,10 @@ provider mri {
   probe require_start( char*, int );
   probe require_end( char*, int );
 
+  probe compile_start( char*, int );
+  probe compile_end( char*, int );
+
+  probe lex_start();
+  probe lex_end();
+
 };
