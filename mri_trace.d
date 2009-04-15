@@ -51,4 +51,16 @@ provider mri {
   probe const_set_start( char*, char* );
   probe const_set_end( char*, char* );
 
+  probe gc_malloc_start();
+  probe gc_malloc_end();
+
+  probe gc_calloc_start();
+  probe gc_calloc_end();
+
+  probe gc_realloc_start();
+  probe gc_realloc_end();
+
+  probe gc_free_start();
+  probe gc_free_end();
+  
 };

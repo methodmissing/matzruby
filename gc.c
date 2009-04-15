@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <setjmp.h>
 #include <sys/types.h>
+#include "mri_trace.h"
 
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
@@ -97,6 +98,8 @@ void *
 ruby_xmalloc(size)
     long size;
 {
+    if (MRI_GC_MALLOC_START_ENABLED())
+      MRI_GC_MALLOC_START();
     void *mem;
 
     if (size < 0) {
@@ -112,11 +115,14 @@ ruby_xmalloc(size)
 	garbage_collect();
 	RUBY_CRITICAL(mem = malloc(size));
 	if (!mem) {
+      if (MRI_GC_MALLOC_END_ENABLED())
+        MRI_GC_MALLOC_END();	
 	    rb_memerror();
 	}
     }
     malloc_increase += size;
-
+    if (MRI_GC_MALLOC_END_ENABLED())
+      MRI_GC_MALLOC_END();
     return mem;
 }
 
@@ -124,11 +130,14 @@ void *
 ruby_xcalloc(n, size)
     long n, size;
 {
+    if (MRI_GC_CALLOC_START_ENABLED())
+      MRI_GC_CALLOC_START();
     void *mem;
 
     mem = xmalloc(n * size);
     memset(mem, 0, n * size);
-
+	if (MRI_GC_CALLOC_END_ENABLED())
+      MRI_GC_CALLOC_END();
     return mem;
 }
 
@@ -137,6 +146,8 @@ ruby_xrealloc(ptr, size)
     void *ptr;
     long size;
 {
+    if (MRI_GC_REALLOC_START_ENABLED())
+      MRI_GC_REALLOC_START();
     void *mem;
 
     if (size < 0) {
@@ -149,11 +160,14 @@ ruby_xrealloc(ptr, size)
 	garbage_collect();
 	RUBY_CRITICAL(mem = realloc(ptr, size));
 	if (!mem) {
+        if (MRI_GC_REALLOC_END_ENABLED())
+          MRI_GC_REALLOC_END();
 	    rb_memerror();
         }
     }
     malloc_increase += size;
-
+    if (MRI_GC_REALLOC_END_ENABLED())
+       MRI_GC_REALLOC_END();
     return mem;
 }
 
@@ -161,8 +175,13 @@ void
 ruby_xfree(x)
     void *x;
 {
-    if (x)
-	RUBY_CRITICAL(free(x));
+    if (x){
+	  if (MRI_GC_FREE_START_ENABLED())
+        MRI_GC_FREE_START();
+	  RUBY_CRITICAL(free(x));
+	  if (MRI_GC_FREE_END_ENABLED())
+        MRI_GC_FREE_END();
+    }
 }
 
 extern int ruby_in_compile;

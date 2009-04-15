@@ -143,6 +143,70 @@ extern "C" {
 } 
 #define	MRI_CONST_SET_START_ENABLED() \
 	__dtrace_isenabled$mri$const_set_start$v1()
+#define	MRI_GC_CALLOC_END() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$gc_calloc_end$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_GC_CALLOC_END_ENABLED() \
+	__dtrace_isenabled$mri$gc_calloc_end$v1()
+#define	MRI_GC_CALLOC_START() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$gc_calloc_start$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_GC_CALLOC_START_ENABLED() \
+	__dtrace_isenabled$mri$gc_calloc_start$v1()
+#define	MRI_GC_FREE_END() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$gc_free_end$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_GC_FREE_END_ENABLED() \
+	__dtrace_isenabled$mri$gc_free_end$v1()
+#define	MRI_GC_FREE_START() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$gc_free_start$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_GC_FREE_START_ENABLED() \
+	__dtrace_isenabled$mri$gc_free_start$v1()
+#define	MRI_GC_MALLOC_END() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$gc_malloc_end$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_GC_MALLOC_END_ENABLED() \
+	__dtrace_isenabled$mri$gc_malloc_end$v1()
+#define	MRI_GC_MALLOC_START() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$gc_malloc_start$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_GC_MALLOC_START_ENABLED() \
+	__dtrace_isenabled$mri$gc_malloc_start$v1()
+#define	MRI_GC_REALLOC_END() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$gc_realloc_end$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_GC_REALLOC_END_ENABLED() \
+	__dtrace_isenabled$mri$gc_realloc_end$v1()
+#define	MRI_GC_REALLOC_START() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$gc_realloc_start$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_GC_REALLOC_START_ENABLED() \
+	__dtrace_isenabled$mri$gc_realloc_start$v1()
 #define	MRI_GLOBAL_VAR_GET_END(arg0) \
 { \
 	__asm__ volatile(".reference " MRI_TYPEDEFS); \
@@ -321,6 +385,22 @@ extern void __dtrace_probe$mri$const_set_end$v1$63686172202a$63686172202a(char *
 extern int __dtrace_isenabled$mri$const_set_end$v1(void);
 extern void __dtrace_probe$mri$const_set_start$v1$63686172202a$63686172202a(char *, char *);
 extern int __dtrace_isenabled$mri$const_set_start$v1(void);
+extern void __dtrace_probe$mri$gc_calloc_end$v1(void);
+extern int __dtrace_isenabled$mri$gc_calloc_end$v1(void);
+extern void __dtrace_probe$mri$gc_calloc_start$v1(void);
+extern int __dtrace_isenabled$mri$gc_calloc_start$v1(void);
+extern void __dtrace_probe$mri$gc_free_end$v1(void);
+extern int __dtrace_isenabled$mri$gc_free_end$v1(void);
+extern void __dtrace_probe$mri$gc_free_start$v1(void);
+extern int __dtrace_isenabled$mri$gc_free_start$v1(void);
+extern void __dtrace_probe$mri$gc_malloc_end$v1(void);
+extern int __dtrace_isenabled$mri$gc_malloc_end$v1(void);
+extern void __dtrace_probe$mri$gc_malloc_start$v1(void);
+extern int __dtrace_isenabled$mri$gc_malloc_start$v1(void);
+extern void __dtrace_probe$mri$gc_realloc_end$v1(void);
+extern int __dtrace_isenabled$mri$gc_realloc_end$v1(void);
+extern void __dtrace_probe$mri$gc_realloc_start$v1(void);
+extern int __dtrace_isenabled$mri$gc_realloc_start$v1(void);
 extern void __dtrace_probe$mri$global_var_get_end$v1$63686172202a(char *);
 extern int __dtrace_isenabled$mri$global_var_get_end$v1(void);
 extern void __dtrace_probe$mri$global_var_get_start$v1$63686172202a(char *);
