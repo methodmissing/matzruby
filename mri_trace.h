@@ -15,6 +15,38 @@ extern "C" {
 
 #define MRI_TYPEDEFS "___dtrace_typedefs$mri$v1"
 
+#define	MRI_CLASS_VAR_GET_END(arg0, arg1) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$class_var_get_end$v1$63686172202a$63686172202a(arg0, arg1); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_CLASS_VAR_GET_END_ENABLED() \
+	__dtrace_isenabled$mri$class_var_get_end$v1()
+#define	MRI_CLASS_VAR_GET_START(arg0, arg1) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$class_var_get_start$v1$63686172202a$63686172202a(arg0, arg1); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_CLASS_VAR_GET_START_ENABLED() \
+	__dtrace_isenabled$mri$class_var_get_start$v1()
+#define	MRI_CLASS_VAR_SET_END(arg0, arg1) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$class_var_set_end$v1$63686172202a$63686172202a(arg0, arg1); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_CLASS_VAR_SET_END_ENABLED() \
+	__dtrace_isenabled$mri$class_var_set_end$v1()
+#define	MRI_CLASS_VAR_SET_START(arg0, arg1) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$class_var_set_start$v1$63686172202a$63686172202a(arg0, arg1); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_CLASS_VAR_SET_START_ENABLED() \
+	__dtrace_isenabled$mri$class_var_set_start$v1()
 #define	MRI_CLEAR_CACHE_BY_CLASS_END(arg0) \
 { \
 	__asm__ volatile(".reference " MRI_TYPEDEFS); \
@@ -79,6 +111,102 @@ extern "C" {
 } 
 #define	MRI_COMPILE_START_ENABLED() \
 	__dtrace_isenabled$mri$compile_start$v1()
+#define	MRI_CONST_GET_END(arg0, arg1) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$const_get_end$v1$63686172202a$63686172202a(arg0, arg1); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_CONST_GET_END_ENABLED() \
+	__dtrace_isenabled$mri$const_get_end$v1()
+#define	MRI_CONST_GET_START(arg0, arg1) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$const_get_start$v1$63686172202a$63686172202a(arg0, arg1); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_CONST_GET_START_ENABLED() \
+	__dtrace_isenabled$mri$const_get_start$v1()
+#define	MRI_CONST_SET_END(arg0, arg1) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$const_set_end$v1$63686172202a$63686172202a(arg0, arg1); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_CONST_SET_END_ENABLED() \
+	__dtrace_isenabled$mri$const_set_end$v1()
+#define	MRI_CONST_SET_START(arg0, arg1) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$const_set_start$v1$63686172202a$63686172202a(arg0, arg1); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_CONST_SET_START_ENABLED() \
+	__dtrace_isenabled$mri$const_set_start$v1()
+#define	MRI_GLOBAL_VAR_GET_END(arg0) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$global_var_get_end$v1$63686172202a(arg0); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_GLOBAL_VAR_GET_END_ENABLED() \
+	__dtrace_isenabled$mri$global_var_get_end$v1()
+#define	MRI_GLOBAL_VAR_GET_START(arg0) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$global_var_get_start$v1$63686172202a(arg0); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_GLOBAL_VAR_GET_START_ENABLED() \
+	__dtrace_isenabled$mri$global_var_get_start$v1()
+#define	MRI_GLOBAL_VAR_SET_END(arg0) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$global_var_set_end$v1$63686172202a(arg0); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_GLOBAL_VAR_SET_END_ENABLED() \
+	__dtrace_isenabled$mri$global_var_set_end$v1()
+#define	MRI_GLOBAL_VAR_SET_START(arg0) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$global_var_set_start$v1$63686172202a(arg0); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_GLOBAL_VAR_SET_START_ENABLED() \
+	__dtrace_isenabled$mri$global_var_set_start$v1()
+#define	MRI_INSTANCE_VAR_GET_END(arg0, arg1) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$instance_var_get_end$v1$63686172202a$63686172202a(arg0, arg1); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_INSTANCE_VAR_GET_END_ENABLED() \
+	__dtrace_isenabled$mri$instance_var_get_end$v1()
+#define	MRI_INSTANCE_VAR_GET_START(arg0, arg1) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$instance_var_get_start$v1$63686172202a$63686172202a(arg0, arg1); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_INSTANCE_VAR_GET_START_ENABLED() \
+	__dtrace_isenabled$mri$instance_var_get_start$v1()
+#define	MRI_INSTANCE_VAR_SET_END(arg0, arg1) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$instance_var_set_end$v1$63686172202a$63686172202a(arg0, arg1); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_INSTANCE_VAR_SET_END_ENABLED() \
+	__dtrace_isenabled$mri$instance_var_set_end$v1()
+#define	MRI_INSTANCE_VAR_SET_START(arg0, arg1) \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$instance_var_set_start$v1$63686172202a$63686172202a(arg0, arg1); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_INSTANCE_VAR_SET_START_ENABLED() \
+	__dtrace_isenabled$mri$instance_var_set_start$v1()
 #define	MRI_LEX_END() \
 { \
 	__asm__ volatile(".reference " MRI_TYPEDEFS); \
@@ -161,6 +289,14 @@ extern "C" {
 	__dtrace_isenabled$mri$thread_switch_start$v1()
 
 
+extern void __dtrace_probe$mri$class_var_get_end$v1$63686172202a$63686172202a(char *, char *);
+extern int __dtrace_isenabled$mri$class_var_get_end$v1(void);
+extern void __dtrace_probe$mri$class_var_get_start$v1$63686172202a$63686172202a(char *, char *);
+extern int __dtrace_isenabled$mri$class_var_get_start$v1(void);
+extern void __dtrace_probe$mri$class_var_set_end$v1$63686172202a$63686172202a(char *, char *);
+extern int __dtrace_isenabled$mri$class_var_set_end$v1(void);
+extern void __dtrace_probe$mri$class_var_set_start$v1$63686172202a$63686172202a(char *, char *);
+extern int __dtrace_isenabled$mri$class_var_set_start$v1(void);
 extern void __dtrace_probe$mri$clear_cache_by_class_end$v1$63686172202a(char *);
 extern int __dtrace_isenabled$mri$clear_cache_by_class_end$v1(void);
 extern void __dtrace_probe$mri$clear_cache_by_class_start$v1$63686172202a(char *);
@@ -177,6 +313,30 @@ extern void __dtrace_probe$mri$compile_end$v1$63686172202a$696e74(char *, int);
 extern int __dtrace_isenabled$mri$compile_end$v1(void);
 extern void __dtrace_probe$mri$compile_start$v1$63686172202a$696e74(char *, int);
 extern int __dtrace_isenabled$mri$compile_start$v1(void);
+extern void __dtrace_probe$mri$const_get_end$v1$63686172202a$63686172202a(char *, char *);
+extern int __dtrace_isenabled$mri$const_get_end$v1(void);
+extern void __dtrace_probe$mri$const_get_start$v1$63686172202a$63686172202a(char *, char *);
+extern int __dtrace_isenabled$mri$const_get_start$v1(void);
+extern void __dtrace_probe$mri$const_set_end$v1$63686172202a$63686172202a(char *, char *);
+extern int __dtrace_isenabled$mri$const_set_end$v1(void);
+extern void __dtrace_probe$mri$const_set_start$v1$63686172202a$63686172202a(char *, char *);
+extern int __dtrace_isenabled$mri$const_set_start$v1(void);
+extern void __dtrace_probe$mri$global_var_get_end$v1$63686172202a(char *);
+extern int __dtrace_isenabled$mri$global_var_get_end$v1(void);
+extern void __dtrace_probe$mri$global_var_get_start$v1$63686172202a(char *);
+extern int __dtrace_isenabled$mri$global_var_get_start$v1(void);
+extern void __dtrace_probe$mri$global_var_set_end$v1$63686172202a(char *);
+extern int __dtrace_isenabled$mri$global_var_set_end$v1(void);
+extern void __dtrace_probe$mri$global_var_set_start$v1$63686172202a(char *);
+extern int __dtrace_isenabled$mri$global_var_set_start$v1(void);
+extern void __dtrace_probe$mri$instance_var_get_end$v1$63686172202a$63686172202a(char *, char *);
+extern int __dtrace_isenabled$mri$instance_var_get_end$v1(void);
+extern void __dtrace_probe$mri$instance_var_get_start$v1$63686172202a$63686172202a(char *, char *);
+extern int __dtrace_isenabled$mri$instance_var_get_start$v1(void);
+extern void __dtrace_probe$mri$instance_var_set_end$v1$63686172202a$63686172202a(char *, char *);
+extern int __dtrace_isenabled$mri$instance_var_set_end$v1(void);
+extern void __dtrace_probe$mri$instance_var_set_start$v1$63686172202a$63686172202a(char *, char *);
+extern int __dtrace_isenabled$mri$instance_var_set_start$v1(void);
 extern void __dtrace_probe$mri$lex_end$v1(void);
 extern int __dtrace_isenabled$mri$lex_end$v1(void);
 extern void __dtrace_probe$mri$lex_start$v1(void);

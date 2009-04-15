@@ -17,6 +17,7 @@
 #include "node.h"
 #include "st.h"
 #include "util.h"
+#include "mri_trace.h"
 
 st_table *rb_global_tbl;
 st_table *rb_class_tbl;
@@ -737,20 +738,42 @@ rb_gv_set(name, val)
     const char *name;
     VALUE val;
 {
+    VALUE result;
+
+    if (MRI_GLOBAL_VAR_SET_START_ENABLED()){
+      char *var_name = name;
+      MRI_GLOBAL_VAR_SET_START( var_name ); 
+    }
     struct global_entry *entry;
 
     entry = rb_global_entry(global_id(name));
-    return rb_gvar_set(entry, val);
+    result = rb_gvar_set(entry, val);
+    if (MRI_GLOBAL_VAR_SET_END_ENABLED()){
+      char *var_name = name;
+      MRI_GLOBAL_VAR_SET_END( var_name ); 
+    }
+    return result;
 }
 
 VALUE
 rb_gv_get(name)
     const char *name;
 {
+    VALUE result;
+
+    if (MRI_GLOBAL_VAR_GET_START_ENABLED()){
+      char *var_name = name;
+      MRI_GLOBAL_VAR_GET_START( var_name );
+    }
     struct global_entry *entry;
 
     entry = rb_global_entry(global_id(name));
-    return rb_gvar_get(entry);
+    result = rb_gvar_get(entry);
+    if (MRI_GLOBAL_VAR_GET_END_ENABLED()){
+      char *var_name = name;
+      MRI_GLOBAL_VAR_GET_END( var_name );
+    }
+    return result;
 }
 
 VALUE
@@ -1398,9 +1421,10 @@ rb_const_get_0(klass, id, exclude, recurse)
     ID id;
     int exclude, recurse;
 {
+    if( MRI_CONST_GET_START_ENABLED() )
+      MRI_CONST_GET_START( rb_class2name(klass), rb_id2name(id) );
     VALUE value, tmp;
     int mod_retry = 0;
-
     tmp = klass;
   retry:
     while (tmp) {
@@ -1413,6 +1437,8 @@ rb_const_get_0(klass, id, exclude, recurse)
 		rb_warn("toplevel constant %s referenced by %s::%s",
 			rb_id2name(id), rb_class2name(klass), rb_id2name(id));
 	    }
+	    if( MRI_CONST_GET_END_ENABLED() )
+	      MRI_CONST_GET_END( rb_class2name(klass), rb_id2name(id) );
 	    return value;
 	}
 	if (!recurse && klass != rb_cObject) break;
@@ -1423,7 +1449,8 @@ rb_const_get_0(klass, id, exclude, recurse)
 	tmp = rb_cObject;
 	goto retry;
     }
-
+    if( MRI_CONST_GET_END_ENABLED() )
+      MRI_CONST_GET_END( rb_class2name(klass), rb_id2name(id) );
     return const_missing(klass, id);
 }
 
@@ -1668,11 +1695,16 @@ rb_const_set(klass, id, val)
     ID id;
     VALUE val;
 {
+    VALUE result;
+    if( MRI_CONST_SET_START_ENABLED() )
+      MRI_CONST_SET_START( rb_class2name(klass), rb_id2name(id) );
     if (NIL_P(klass)) {
 	rb_raise(rb_eTypeError, "no class/module to define constant %s",
 		 rb_id2name(id));
     }
     mod_av_set(klass, id, val, Qtrue);
+    if( MRI_CONST_SET_END_ENABLED() )
+      MRI_CONST_SET_END( rb_class2name(klass), rb_id2name(id) );
 }
 
 void
@@ -1809,11 +1841,19 @@ rb_cv_set(klass, name, val)
     const char *name;
     VALUE val;
 {
+    if (MRI_CLASS_VAR_SET_START_ENABLED()){
+      char *var_name = name;
+      MRI_CLASS_VAR_SET_START( rb_class2name(klass), var_name );
+    }
     ID id = rb_intern(name);
     if (!rb_is_class_id(id)) {
 	rb_name_error(id, "wrong class variable name %s", name);
     }
     rb_cvar_set(klass, id, val, Qfalse);
+    if (MRI_CLASS_VAR_SET_END_ENABLED()){
+      char *var_name = name;
+      MRI_CLASS_VAR_SET_END( rb_class2name(klass), var_name );
+    }
 }
 
 VALUE
@@ -1821,11 +1861,22 @@ rb_cv_get(klass, name)
     VALUE klass;
     const char *name;
 {
+    VALUE result;
+
+    if (MRI_CLASS_VAR_GET_START_ENABLED()){
+      char *var_name = name;
+      MRI_CLASS_VAR_GET_START( rb_class2name(klass), var_name );
+    }
     ID id = rb_intern(name);
     if (!rb_is_class_id(id)) {
 	rb_name_error(id, "wrong class variable name %s", name);
     }
-    return rb_cvar_get(klass, id);
+    result = rb_cvar_get(klass, id);
+    if (MRI_CLASS_VAR_GET_END_ENABLED()){
+      char *var_name = name;
+      MRI_CLASS_VAR_GET_END( rb_class2name(klass), var_name );
+    }
+    return result;
 }
 
 void
@@ -1941,9 +1992,20 @@ rb_iv_get(obj, name)
     VALUE obj;
     const char *name;
 {
+    VALUE result;
+
+    if (MRI_INSTANCE_VAR_GET_START_ENABLED()){
+      char *var_name = name;
+      MRI_INSTANCE_VAR_GET_START( rb_class2name(CLASS_OF(obj)), var_name );
+    }
     ID id = rb_intern(name);
 
-    return rb_ivar_get(obj, id);
+    result = rb_ivar_get(obj, id);
+    if (MRI_INSTANCE_VAR_GET_END_ENABLED()){
+      char *var_name = name;
+      MRI_INSTANCE_VAR_GET_END( rb_class2name(CLASS_OF(obj)), var_name );
+    }
+    return result;
 }
 
 VALUE
@@ -1952,7 +2014,18 @@ rb_iv_set(obj, name, val)
     const char *name;
     VALUE val;
 {
-    ID id = rb_intern(name);
+    VALUE result; 
 
-    return rb_ivar_set(obj, id, val);
+    if (MRI_INSTANCE_VAR_SET_START_ENABLED()){
+      char *var_name = name;
+      MRI_INSTANCE_VAR_SET_START( rb_class2name(CLASS_OF(obj)), var_name );
+    }
+    ID id = rb_intern(name);
+   
+    result = rb_ivar_set(obj, id, val);
+    if (MRI_INSTANCE_VAR_SET_END_ENABLED()){
+      char *var_name = name;
+      MRI_INSTANCE_VAR_SET_END( rb_class2name(CLASS_OF(obj)), var_name );
+    }
+    return result;
 }

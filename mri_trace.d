@@ -27,4 +27,28 @@ provider mri {
   probe lex_start();
   probe lex_end();
 
+  probe global_var_get_start( char* );
+  probe global_var_get_end( char* );
+
+  probe global_var_set_start( char* );
+  probe global_var_set_end( char* );
+
+  probe class_var_get_start( char*, char* );
+  probe class_var_get_end( char*, char* );
+
+  probe class_var_set_start( char*, char* );
+  probe class_var_set_end( char*, char* );
+
+  probe instance_var_get_start( char*, char* );
+  probe instance_var_get_end( char*, char* );
+
+  probe instance_var_set_start( char*, char* );
+  probe instance_var_set_end( char*, char* );
+
+  probe const_get_start( char*, char* );
+  probe const_get_end( char*, char* );
+
+  probe const_set_start( char*, char* );
+  probe const_set_end( char*, char* );
+
 };
