@@ -53,7 +53,7 @@ mri*:::gc_realloc_end
 { 
   this->elapsed = timestamp - this->realloc_start;
   this->realloc_start = 0;
-  this->type = "calloc";
+  this->type = "realloc";
   @num[this->type] = count();
   @eavg[this->type] = avg(this->elapsed);
   @esum[this->type] = sum(this->elapsed);
@@ -71,7 +71,61 @@ mri*:::gc_free_end
 { 
   this->elapsed = timestamp - this->free_start;
   this->free_start = 0;
-  this->type = "calloc";
+  this->type = "free";
+  @num[this->type] = count();
+  @eavg[this->type] = avg(this->elapsed);
+  @esum[this->type] = sum(this->elapsed);
+  @edist[this->type] = quantize(this->elapsed);
+  this->depth--;
+}
+
+mri*:::gc_register_address_start
+{ 
+  this->register_address_start = timestamp;
+}
+
+mri*:::gc_register_address_end
+/this->register_address_start/
+{ 
+  this->elapsed = timestamp - this->register_address_start;
+  this->register_address_start = 0;
+  this->type = "register_address";
+  @num[this->type] = count();
+  @eavg[this->type] = avg(this->elapsed);
+  @esum[this->type] = sum(this->elapsed);
+  @edist[this->type] = quantize(this->elapsed);
+  this->depth--;
+}
+
+mri*:::gc_unregister_address_start
+{ 
+  this->unregister_address_start = timestamp;
+}
+
+mri*:::gc_unregister_address_end
+/this->unregister_address_start/
+{ 
+  this->elapsed = timestamp - this->unregister_address_start;
+  this->unregister_address_start = 0;
+  this->type = "unregister_address";
+  @num[this->type] = count();
+  @eavg[this->type] = avg(this->elapsed);
+  @esum[this->type] = sum(this->elapsed);
+  @edist[this->type] = quantize(this->elapsed);
+  this->depth--;
+}
+
+mri*:::gc_add_heap_start
+{ 
+  this->add_heap_start = timestamp;
+}
+
+mri*:::gc_add_heap_end
+/this->add_heap_start/
+{ 
+  this->elapsed = timestamp - this->add_heap_start;
+  this->add_heap_start = 0;
+  this->type = "add_heap";
   @num[this->type] = count();
   @eavg[this->type] = avg(this->elapsed);
   @esum[this->type] = sum(this->elapsed);

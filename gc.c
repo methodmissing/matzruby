@@ -245,18 +245,24 @@ void
 rb_gc_register_address(addr)
     VALUE *addr;
 {
+    if (MRI_GC_REGISTER_ADDRESS_START_ENABLED())
+      MRI_GC_REGISTER_ADDRESS_START();
     struct gc_list *tmp;
 
     tmp = ALLOC(struct gc_list);
     tmp->next = global_List;
     tmp->varptr = addr;
     global_List = tmp;
+    if (MRI_GC_REGISTER_ADDRESS_END_ENABLED())
+      MRI_GC_REGISTER_ADDRESS_END();
 }
 
 void
 rb_gc_unregister_address(addr)
     VALUE *addr;
 {
+    if (MRI_GC_UNREGISTER_ADDRESS_START_ENABLED())
+      MRI_GC_UNREGISTER_ADDRESS_START();
     struct gc_list *tmp = global_List;
 
     if (tmp->varptr == addr) {
@@ -274,6 +280,8 @@ rb_gc_unregister_address(addr)
 	}
 	tmp = tmp->next;
     }
+	if (MRI_GC_UNREGISTER_ADDRESS_END_ENABLED())
+      MRI_GC_UNREGISTER_ADDRESS_END();
 }
 
 #undef GC_DEBUG
@@ -344,6 +352,8 @@ static RVALUE *himem, *lomem;
 static void
 add_heap()
 {
+    if (MRI_GC_ADD_HEAP_START_ENABLED())
+      MRI_GC_ADD_HEAP_START();
     RVALUE *p, *pend;
 
     if (heaps_used == heaps_length) {
@@ -361,13 +371,19 @@ add_heap()
 	    else {
 		p = heaps = (struct heaps_slot *)malloc(length);
 	    });
-	if (p == 0) rb_memerror();
+	if (p == 0) {
+	  if (MRI_GC_ADD_HEAP_START_ENABLED())
+        MRI_GC_ADD_HEAP_START();
+	  rb_memerror();
+	  }
     }
 
     for (;;) {
 	RUBY_CRITICAL(p = (RVALUE*)malloc(sizeof(RVALUE)*(heap_slots+1)));
 	if (p == 0) {
 	    if (heap_slots == HEAP_MIN_SLOTS) {
+	    if (MRI_GC_ADD_HEAP_START_ENABLED())
+	      MRI_GC_ADD_HEAP_START();
 		rb_memerror();
 	    }
 	    heap_slots = HEAP_MIN_SLOTS;
@@ -395,6 +411,8 @@ add_heap()
 	freelist = p;
 	p++;
     }
+    if (MRI_GC_ADD_HEAP_END_ENABLED())
+      MRI_GC_ADD_HEAP_END();
 }
 #define RANY(o) ((RVALUE*)(o))
 

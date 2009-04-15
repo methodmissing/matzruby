@@ -143,6 +143,22 @@ extern "C" {
 } 
 #define	MRI_CONST_SET_START_ENABLED() \
 	__dtrace_isenabled$mri$const_set_start$v1()
+#define	MRI_GC_ADD_HEAP_END() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$gc_add_heap_end$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_GC_ADD_HEAP_END_ENABLED() \
+	__dtrace_isenabled$mri$gc_add_heap_end$v1()
+#define	MRI_GC_ADD_HEAP_START() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$gc_add_heap_start$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_GC_ADD_HEAP_START_ENABLED() \
+	__dtrace_isenabled$mri$gc_add_heap_start$v1()
 #define	MRI_GC_CALLOC_END() \
 { \
 	__asm__ volatile(".reference " MRI_TYPEDEFS); \
@@ -207,6 +223,38 @@ extern "C" {
 } 
 #define	MRI_GC_REALLOC_START_ENABLED() \
 	__dtrace_isenabled$mri$gc_realloc_start$v1()
+#define	MRI_GC_REGISTER_ADDRESS_END() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$gc_register_address_end$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_GC_REGISTER_ADDRESS_END_ENABLED() \
+	__dtrace_isenabled$mri$gc_register_address_end$v1()
+#define	MRI_GC_REGISTER_ADDRESS_START() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$gc_register_address_start$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_GC_REGISTER_ADDRESS_START_ENABLED() \
+	__dtrace_isenabled$mri$gc_register_address_start$v1()
+#define	MRI_GC_UNREGISTER_ADDRESS_END() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$gc_unregister_address_end$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_GC_UNREGISTER_ADDRESS_END_ENABLED() \
+	__dtrace_isenabled$mri$gc_unregister_address_end$v1()
+#define	MRI_GC_UNREGISTER_ADDRESS_START() \
+{ \
+	__asm__ volatile(".reference " MRI_TYPEDEFS); \
+	__dtrace_probe$mri$gc_unregister_address_start$v1(); \
+	__asm__ volatile(".reference " MRI_STABILITY); \
+} 
+#define	MRI_GC_UNREGISTER_ADDRESS_START_ENABLED() \
+	__dtrace_isenabled$mri$gc_unregister_address_start$v1()
 #define	MRI_GLOBAL_VAR_GET_END(arg0) \
 { \
 	__asm__ volatile(".reference " MRI_TYPEDEFS); \
@@ -385,6 +433,10 @@ extern void __dtrace_probe$mri$const_set_end$v1$63686172202a$63686172202a(char *
 extern int __dtrace_isenabled$mri$const_set_end$v1(void);
 extern void __dtrace_probe$mri$const_set_start$v1$63686172202a$63686172202a(char *, char *);
 extern int __dtrace_isenabled$mri$const_set_start$v1(void);
+extern void __dtrace_probe$mri$gc_add_heap_end$v1(void);
+extern int __dtrace_isenabled$mri$gc_add_heap_end$v1(void);
+extern void __dtrace_probe$mri$gc_add_heap_start$v1(void);
+extern int __dtrace_isenabled$mri$gc_add_heap_start$v1(void);
 extern void __dtrace_probe$mri$gc_calloc_end$v1(void);
 extern int __dtrace_isenabled$mri$gc_calloc_end$v1(void);
 extern void __dtrace_probe$mri$gc_calloc_start$v1(void);
@@ -401,6 +453,14 @@ extern void __dtrace_probe$mri$gc_realloc_end$v1(void);
 extern int __dtrace_isenabled$mri$gc_realloc_end$v1(void);
 extern void __dtrace_probe$mri$gc_realloc_start$v1(void);
 extern int __dtrace_isenabled$mri$gc_realloc_start$v1(void);
+extern void __dtrace_probe$mri$gc_register_address_end$v1(void);
+extern int __dtrace_isenabled$mri$gc_register_address_end$v1(void);
+extern void __dtrace_probe$mri$gc_register_address_start$v1(void);
+extern int __dtrace_isenabled$mri$gc_register_address_start$v1(void);
+extern void __dtrace_probe$mri$gc_unregister_address_end$v1(void);
+extern int __dtrace_isenabled$mri$gc_unregister_address_end$v1(void);
+extern void __dtrace_probe$mri$gc_unregister_address_start$v1(void);
+extern int __dtrace_isenabled$mri$gc_unregister_address_start$v1(void);
 extern void __dtrace_probe$mri$global_var_get_end$v1$63686172202a(char *);
 extern int __dtrace_isenabled$mri$global_var_get_end$v1(void);
 extern void __dtrace_probe$mri$global_var_get_start$v1$63686172202a(char *);

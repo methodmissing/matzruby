@@ -63,4 +63,13 @@ provider mri {
   probe gc_free_start();
   probe gc_free_end();
   
+  probe gc_register_address_start();
+  probe gc_register_address_end();
+
+  probe gc_unregister_address_start();
+  probe gc_unregister_address_end();
+
+  probe gc_add_heap_start();
+  probe gc_add_heap_end();
+
 };
